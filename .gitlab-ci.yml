@@ -1,0 +1,40 @@
+image: docker:19.03.12
+
+variables:
+  BASEIMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
+
+stages:
+  - build
+  - deploy
+
+build cicd-image:
+  stage: build
+  only:
+    - master      
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker info
+  script:
+    - docker build -t $BASEIMAGE .
+    - docker push $BASEIMAGE
+  tags:
+    - prod    
+
+## ssh to ec2 and exec docker to run docker image
+build deploy-image:
+  stage: deploy
+  only:
+    - master      
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker info
+    - echo $SSHKEY > priv
+    - chmod 600 priv
+  script:
+    - ssh -i priv ubuntu@$IPADDR 'sudo docker run -it -d -p 80:80 --name Hello_sekai registry.gitlab.com/justhumanz/$BASEIMAGE'
+  tags: #Use private runner to deploy container
+    - prod  
+  when: manual  
+  environment:
+    name: prod
+    url: http://$IPADDR/hello.txt
