@@ -31,7 +31,7 @@ build deploy-image:
     - echo $SSHKEY > priv
     - chmod 600 priv
   script:
-    - ssh -i priv ubuntu@$IPADDR 'sudo docker run -it -d -p 80:80 --name Hello_sekai registry.gitlab.com/justhumanz/$BASEIMAGE'
+    - ssh -i ./priv ubuntu@$IPADDR 'sudo docker run -it -d -p 80:80 --name Hello_sekai registry.gitlab.com/justhumanz/$BASEIMAGE'
   tags: #Use private runner to deploy container
     - prod  
   when: manual  
