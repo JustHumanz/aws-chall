@@ -26,8 +26,6 @@ build deploy-image:
   only:
     - master      
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
-    - docker info
     - echo $SSHKEY > priv
     - chmod 600 priv
   script:
